@@ -15,7 +15,7 @@ namespace SistemaContable01
 
         private void btnConexion_Click(object sender, EventArgs e)
         {
-          
+
             string connectionString = "Server=localhost\\SQLEXPRESS;Database=SysCon01Db;Trusted_Connection=True;Encrypt=False;";
 
 
@@ -58,7 +58,7 @@ namespace SistemaContable01
                     int count = Convert.ToInt32(cmd.ExecuteScalar());
                     if (count == 1)
                     {
-                        MessageBox.Show("¡Login correcto!");
+                        MessageBox.Show("¡Bienvenido!");
                         // Abrir formulario principal
                         DashboardForm dashboard = new DashboardForm();
                         dashboard.Show();
@@ -76,6 +76,9 @@ namespace SistemaContable01
             }
         }
 
+        private void Usuario_Click(object sender, EventArgs e)
+        {
 
+        }
     }
 }

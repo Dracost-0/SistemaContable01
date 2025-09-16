@@ -46,20 +46,21 @@
             // Usuario
             // 
             Usuario.AutoSize = true;
-            Usuario.Location = new Point(236, 66);
+            Usuario.Location = new Point(84, 87);
             Usuario.Name = "Usuario";
-            Usuario.Size = new Size(38, 15);
+            Usuario.Size = new Size(94, 15);
             Usuario.TabIndex = 1;
-            Usuario.Text = "label1";
+            Usuario.Text = "Nombre Usuario";
+            Usuario.Click += Usuario_Click;
             // 
             // Contraseña
             // 
             Contraseña.AutoSize = true;
-            Contraseña.Location = new Point(236, 134);
+            Contraseña.Location = new Point(137, 160);
             Contraseña.Name = "Contraseña";
-            Contraseña.Size = new Size(38, 15);
+            Contraseña.Size = new Size(57, 15);
             Contraseña.TabIndex = 2;
-            Contraseña.Text = "label2";
+            Contraseña.Text = "Password";
             // 
             // txtUsername
             // 
@@ -69,7 +70,7 @@
             txtUsername.TabIndex = 3;
             txtUsername.Text = "Usuario";
             // 
-            // textBox2
+            // txtPassword
             // 
             txtPassword.Location = new Point(210, 152);
             txtPassword.Name = "txtPassword";
@@ -86,7 +87,7 @@
             btnLogin.TabIndex = 5;
             btnLogin.Text = "Iniciar Sesión";
             btnLogin.UseVisualStyleBackColor = true;
-            btnLogin.Click += this.btnLogin_Click;
+            btnLogin.Click += btnLogin_Click;
             // 
             // loginForm
             // 

@@ -16,5 +16,28 @@ namespace SistemaContable01.Dashboard
         {
             InitializeComponent();
         }
+
+        private void DashboardForm_Load(object sender, EventArgs e)
+        {
+            treeView1.ExpandAll();
+        }
+
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            // Expandir nodo padre cuando se selecciona
+            if (e.Node?.Name == "NodeAdminPuc")
+            {
+                e.Node.Expand(); // Esto muestra los subnodos
+            }
+
+            // Detectar selección del subnodo
+            if (e.Node?.Name == "NodePuc")
+            {
+                MessageBox.Show("Se seleccionó Plan Único de Cuentas");
+            }
+        }
+
+
+
     }
 }
