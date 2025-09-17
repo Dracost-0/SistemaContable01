@@ -32,8 +32,12 @@
             components = new System.ComponentModel.Container();
             TreeNode treeNode1 = new TreeNode("Plan Único de Cuentas");
             TreeNode treeNode2 = new TreeNode("Administrar Cuentas", new TreeNode[] { treeNode1 });
+            TreeNode treeNode3 = new TreeNode("Agregar un Tercero");
+            TreeNode treeNode4 = new TreeNode("Administrar Terceros", new TreeNode[] { treeNode3 });
             contextMenuStrip1 = new ContextMenuStrip(components);
             treeView1 = new TreeView();
+            dgvPUC = new DataGridView();
+            ((System.ComponentModel.ISupportInitialize)dgvPUC).BeginInit();
             SuspendLayout();
             // 
             // contextMenuStrip1
@@ -49,20 +53,34 @@
             treeNode1.Text = "Plan Único de Cuentas";
             treeNode2.Name = "NodeAdminPuc";
             treeNode2.Text = "Administrar Cuentas";
-            treeView1.Nodes.AddRange(new TreeNode[] { treeNode2 });
+            treeNode3.Name = "Node1";
+            treeNode3.Text = "Agregar un Tercero";
+            treeNode4.Name = "Node0";
+            treeNode4.Text = "Administrar Terceros";
+            treeView1.Nodes.AddRange(new TreeNode[] { treeNode2, treeNode4 });
             treeView1.Size = new Size(171, 426);
             treeView1.TabIndex = 2;
             treeView1.AfterSelect += treeView1_AfterSelect;
+            // 
+            // dgvPUC
+            // 
+            dgvPUC.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvPUC.Location = new Point(189, 12);
+            dgvPUC.Name = "dgvPUC";
+            dgvPUC.Size = new Size(539, 426);
+            dgvPUC.TabIndex = 3;
             // 
             // DashboardForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(dgvPUC);
             Controls.Add(treeView1);
             Name = "DashboardForm";
             Text = "DashboardForm";
             Load += DashboardForm_Load;
+            ((System.ComponentModel.ISupportInitialize)dgvPUC).EndInit();
             ResumeLayout(false);
         }
 
@@ -70,5 +88,6 @@
 
         private ContextMenuStrip contextMenuStrip1;
         private TreeView treeView1;
+        private DataGridView dgvPUC;
     }
 }
