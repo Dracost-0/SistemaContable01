@@ -33,7 +33,8 @@
             TreeNode treeNode1 = new TreeNode("Plan Único de Cuentas");
             TreeNode treeNode2 = new TreeNode("Administrar Cuentas", new TreeNode[] { treeNode1 });
             TreeNode treeNode3 = new TreeNode("Agregar un Tercero");
-            TreeNode treeNode4 = new TreeNode("Administrar Terceros", new TreeNode[] { treeNode3 });
+            TreeNode treeNode4 = new TreeNode("Visualizar Terceros");
+            TreeNode treeNode5 = new TreeNode("Administrar Terceros", new TreeNode[] { treeNode3, treeNode4 });
             contextMenuStrip1 = new ContextMenuStrip(components);
             treeView1 = new TreeView();
             dgvPUC = new DataGridView();
@@ -55,9 +56,11 @@
             treeNode2.Text = "Administrar Cuentas";
             treeNode3.Name = "Node1";
             treeNode3.Text = "Agregar un Tercero";
-            treeNode4.Name = "Node0";
-            treeNode4.Text = "Administrar Terceros";
-            treeView1.Nodes.AddRange(new TreeNode[] { treeNode2, treeNode4 });
+            treeNode4.Name = "ListarTerceros";
+            treeNode4.Text = "Visualizar Terceros";
+            treeNode5.Name = "Node0";
+            treeNode5.Text = "Administrar Terceros";
+            treeView1.Nodes.AddRange(new TreeNode[] { treeNode2, treeNode5 });
             treeView1.Size = new Size(171, 426);
             treeView1.TabIndex = 2;
             treeView1.AfterSelect += treeView1_AfterSelect;

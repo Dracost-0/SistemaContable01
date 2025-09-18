@@ -50,6 +50,9 @@ namespace SistemaContable01.Dashboard
                 case "Node1": // Agregar un Tercero
                     new FormAgregarTercero().ShowDialog();
                     break;
+                case "ListarTerceros": // Visualizar Terceros (Name actual)
+                    new FormListarTerceros().ShowDialog();
+                    break;
 
                     // Aquí vas agregando más opciones en el futuro
                     // case "NodeClientesAgregar": ...
