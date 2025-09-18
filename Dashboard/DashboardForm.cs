@@ -18,8 +18,6 @@ namespace SistemaContable01.Dashboard
     public partial class DashboardForm : Form
     {
 
-        // Conexión a SQL Server
-        string connectionString = @"Server=localhost\SQLEXPRESS;Database=SysCon01Db;Trusted_Connection=True;Encrypt=False;";
 
         public DashboardForm()
         {
@@ -43,21 +41,14 @@ namespace SistemaContable01.Dashboard
                 case "NodeAdminPuc":
                     e.Node.Expand();
                     break;
-
                 case "NodePuc":
-                    FormPlanCuentas formPuc = new FormPlanCuentas();
-                    formPuc.ShowDialog();
+                    new FormPlanCuentas().ShowDialog();
                     break;
-
-
-                // Terceros
-                case "NodeAdminTerceros":
+                case "Node0": // Administrar Terceros
                     e.Node.Expand();
                     break;
-
-                case "NodeAgregarTercero":
-                    FormAgregarTercero formTercero = new FormAgregarTercero();
-                    formTercero.ShowDialog();
+                case "Node1": // Agregar un Tercero
+                    new FormAgregarTercero().ShowDialog();
                     break;
 
                     // Aquí vas agregando más opciones en el futuro
