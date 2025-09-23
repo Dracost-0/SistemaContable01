@@ -30,14 +30,21 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            TreeNode treeNode1 = new TreeNode("Plan Único de Cuentas");
-            TreeNode treeNode2 = new TreeNode("Administrar Cuentas", new TreeNode[] { treeNode1 });
-            TreeNode treeNode3 = new TreeNode("Agregar un Tercero");
-            TreeNode treeNode4 = new TreeNode("Visualizar Terceros");
-            TreeNode treeNode5 = new TreeNode("Administrar Terceros", new TreeNode[] { treeNode3, treeNode4 });
+            TreeNode treeNode1 = new TreeNode("Agregar, Editar, Eliminar Cuenta");
+            TreeNode treeNode2 = new TreeNode("Plan Único de Cuentas", new TreeNode[] { treeNode1 });
+            TreeNode treeNode3 = new TreeNode("Administrar Cuentas", new TreeNode[] { treeNode2 });
+            TreeNode treeNode4 = new TreeNode("Agregar un Tercero");
+            TreeNode treeNode5 = new TreeNode("Visualizar Terceros");
+            TreeNode treeNode6 = new TreeNode("Administrar Terceros", new TreeNode[] { treeNode4, treeNode5 });
+            TreeNode treeNode7 = new TreeNode("Registrar Transaccion");
+            TreeNode treeNode8 = new TreeNode("Transacciones", new TreeNode[] { treeNode7 });
+            TreeNode treeNode9 = new TreeNode("Balance General");
+            TreeNode treeNode10 = new TreeNode("Estados Financieros", new TreeNode[] { treeNode9 });
+            TreeNode treeNode11 = new TreeNode("Informe Por Tercero");
+            TreeNode treeNode12 = new TreeNode("Informes", new TreeNode[] { treeNode11 });
             contextMenuStrip1 = new ContextMenuStrip(components);
-            treeView1 = new TreeView();
             dgvPUC = new DataGridView();
+            treeView1 = new TreeView();
             ((System.ComponentModel.ISupportInitialize)dgvPUC).BeginInit();
             SuspendLayout();
             // 
@@ -46,32 +53,46 @@
             contextMenuStrip1.Name = "contextMenuStrip1";
             contextMenuStrip1.Size = new Size(61, 4);
             // 
+            // dgvPUC
+            // 
+            dgvPUC.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvPUC.Location = new Point(282, 12);
+            dgvPUC.Name = "dgvPUC";
+            dgvPUC.Size = new Size(446, 426);
+            dgvPUC.TabIndex = 3;
+            // 
             // treeView1
             // 
             treeView1.Location = new Point(12, 12);
             treeView1.Name = "treeView1";
-            treeNode1.Name = "NodePuc";
-            treeNode1.Text = "Plan Único de Cuentas";
-            treeNode2.Name = "NodeAdminPuc";
-            treeNode2.Text = "Administrar Cuentas";
-            treeNode3.Name = "Node1";
-            treeNode3.Text = "Agregar un Tercero";
-            treeNode4.Name = "ListarTerceros";
-            treeNode4.Text = "Visualizar Terceros";
-            treeNode5.Name = "Node0";
-            treeNode5.Text = "Administrar Terceros";
-            treeView1.Nodes.AddRange(new TreeNode[] { treeNode2, treeNode5 });
-            treeView1.Size = new Size(171, 426);
+            treeNode1.Name = "NodeCrudPlanCuentas";
+            treeNode1.Text = "Agregar, Editar, Eliminar Cuenta";
+            treeNode2.Name = "NodePuc";
+            treeNode2.Text = "Plan Único de Cuentas";
+            treeNode3.Name = "NodeAdminPuc";
+            treeNode3.Text = "Administrar Cuentas";
+            treeNode4.Name = "NodeAgregarTercero";
+            treeNode4.Text = "Agregar un Tercero";
+            treeNode5.Name = "NodeListarTerceros";
+            treeNode5.Text = "Visualizar Terceros";
+            treeNode6.Name = "NodeAdminTercero";
+            treeNode6.Text = "Administrar Terceros";
+            treeNode7.Name = "NodeAgregarTransaccion";
+            treeNode7.Text = "Registrar Transaccion";
+            treeNode8.Name = "NodeTransacciones";
+            treeNode8.Text = "Transacciones";
+            treeNode9.Name = "NodeBalanceGeneral";
+            treeNode9.Text = "Balance General";
+            treeNode10.Name = "NodeEstadosFinancieros";
+            treeNode10.Text = "Estados Financieros";
+            treeNode11.Name = "NodeInformePorTercero";
+            treeNode11.Text = "Informe Por Tercero";
+            treeNode12.Name = "NodeInformes";
+            treeNode12.Text = "Informes";
+            treeView1.Nodes.AddRange(new TreeNode[] { treeNode3, treeNode6, treeNode8, treeNode10, treeNode12 });
+            treeView1.Size = new Size(253, 426);
             treeView1.TabIndex = 2;
             treeView1.AfterSelect += treeView1_AfterSelect;
-            // 
-            // dgvPUC
-            // 
-            dgvPUC.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvPUC.Location = new Point(189, 12);
-            dgvPUC.Name = "dgvPUC";
-            dgvPUC.Size = new Size(539, 426);
-            dgvPUC.TabIndex = 3;
             // 
             // DashboardForm
             // 
@@ -90,7 +111,7 @@
         #endregion
 
         private ContextMenuStrip contextMenuStrip1;
-        private TreeView treeView1;
         private DataGridView dgvPUC;
+        private TreeView treeView1;
     }
 }

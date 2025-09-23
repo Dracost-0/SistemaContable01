@@ -1,24 +1,18 @@
-﻿using Microsoft.Data.SqlClient;// Para SQL Server
+﻿using SistemaContable01.Dashboard.Transacciones;
 using SistemaContable01.Dashboard.Terceros;
 using SistemaContable01.PlanCuentas;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;   // Opcional si usas app.config
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral; 
+using SistemaContable01.Dashboard.PlanCuentas.CrudPlanCuentas; // CRUD form
+using SistemaContable01.Dashboard.Informes;
+using SistemaContable01.Dashboard.Informes.InformePorTercero;
 
+using System;
+using System.Windows.Forms;
 
 namespace SistemaContable01.Dashboard
 {
     public partial class DashboardForm : Form
     {
-
-
         public DashboardForm()
         {
             InitializeComponent();
@@ -26,10 +20,8 @@ namespace SistemaContable01.Dashboard
 
         private void DashboardForm_Load(object sender, EventArgs e)
         {
-            // Expandimos todo el árbol
             treeView1.ExpandAll();
         }
-
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -37,30 +29,62 @@ namespace SistemaContable01.Dashboard
 
             switch (e.Node.Name)
             {
-                // PUC
-                case "NodeAdminPuc":
-                    e.Node.Expand();
-                    break;
                 case "NodePuc":
-                    new FormPlanCuentas().ShowDialog();
-                    break;
-                case "Node0": // Administrar Terceros
-                    e.Node.Expand();
-                    break;
-                case "Node1": // Agregar un Tercero
-                    new FormAgregarTercero().ShowDialog();
-                    break;
-                case "ListarTerceros": // Visualizar Terceros (Name actual)
-                    new FormListarTerceros().ShowDialog();
+                    TryOpen(() => new FormPlanCuentas(), "Plan de Cuentas");
                     break;
 
-                    // Aquí vas agregando más opciones en el futuro
-                    // case "NodeClientesAgregar": ...
+                // Maneja ambos nombres de nodo para el CRUD
+                case "NodeCrudPlanCuentas":
+                    TryOpen(() => new FormCrudPlanCuentas(), "CRUD Plan de Cuentas");
+                    break;
+
+                case "NodeAgregarTercero":
+                    TryOpen(() => new FormAgregarTercero(), "Agregar Tercero");
+                    break;
+
+                case "NodeListarTerceros":
+                    TryOpen(() => new FormListarTerceros(), "Listar Terceros");
+                    break;
+
+                case "NodeAgregarTransaccion":
+                    TryOpen(() => new FormTransacciones(), "Transacciones");
+                    break;
+
+                case "NodeBalanceGeneral":
+                    TryOpen(() => new EstadosFinancieros.BalanceGeneral.FormBalanceGeneral(), "Balance General");
+                    break;
+
+                case "NodeInformePorTercero":
+                    TryOpen(() => new FormInformePorTercero(), "Balance Por Tercero");
+                    break;
+
+                // Nodos solo para expandir
+                case "NodeAdminPuc":
+                case "NodeAdminTercero":
+                case "NodeTransacciones":
+                case "NodeEstadosFinancieros":
+                    e.Node.Expand();
+                    break;
+
+                default:
+                    // Opcional: descomenta para ver el Name real del nodo seleccionado
+                    // MessageBox.Show($"Nodo no manejado: {e.Node.Name}");
+                    break;
             }
         }
 
-
-
-
+        private static void TryOpen(Func<Form> factory, string caption)
+        {
+            try
+            {
+                var f = factory();
+                f.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error abriendo {caption}:{Environment.NewLine}{Environment.NewLine}{ex}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }
