@@ -1,4 +1,5 @@
 ﻿using SistemaContable01.Dashboard.Transacciones;
+using SistemaContable01.Dashboard.Transacciones.CrudTransacciones;
 using SistemaContable01.Dashboard.Terceros;
 using SistemaContable01.PlanCuentas;
 using SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral; 
@@ -8,6 +9,8 @@ using SistemaContable01.Dashboard.Informes.InformePorTercero;
 
 using System;
 using System.Windows.Forms;
+
+#nullable enable
 
 namespace SistemaContable01.Dashboard
 {
@@ -49,6 +52,11 @@ namespace SistemaContable01.Dashboard
                 case "NodeAgregarTransaccion":
                     TryOpen(() => new FormTransacciones(), "Transacciones");
                     break;
+                case "NodeCrudTransacciones":
+                    TryOpen(() => new FormCrudTransacciones(), "Transacciones");
+                    break;
+
+
 
                 case "NodeBalanceGeneral":
                     TryOpen(() => new EstadosFinancieros.BalanceGeneral.FormBalanceGeneral(), "Balance General");

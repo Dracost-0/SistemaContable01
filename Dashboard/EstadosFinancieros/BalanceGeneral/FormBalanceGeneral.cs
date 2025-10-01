@@ -5,9 +5,9 @@ using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Data.SqlClient;
 
-namespace SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral 
+namespace SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral
 {
-        public partial class FormBalanceGeneral : Form
+    public partial class FormBalanceGeneral : Form
     {
         private readonly string _connectionString =
             @"Server=localhost\SQLEXPRESS;Database=SysCon01Db;Trusted_Connection=True;Encrypt=False;";
@@ -28,7 +28,7 @@ namespace SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral
 
         public FormBalanceGeneral()
         {
-            InitializeComponent(); // enlaza con el Designer
+            InitializeComponent();
 
             Text = "Balance General";
             StartPosition = FormStartPosition.CenterParent;
@@ -44,7 +44,6 @@ namespace SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral
 
         private void BuildUi()
         {
-            // Top panel
             _panelTop.Dock = DockStyle.Top;
             _panelTop.Height = 46;
             _panelTop.Padding = new Padding(8);
@@ -64,7 +63,6 @@ namespace SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral
 
             _panelTop.Controls.AddRange(new Control[] { _lblFecha, _dtpCorte, _btnCalcular });
 
-            // Grid
             _dgv.Dock = DockStyle.Fill;
             _dgv.AllowUserToAddRows = false;
             _dgv.AllowUserToDeleteRows = false;
@@ -74,7 +72,6 @@ namespace SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral
             _dgv.RowHeadersVisible = false;
             _dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-            // Bottom panel
             _panelBottom.Dock = DockStyle.Bottom;
             _panelBottom.Height = 48;
             _panelBottom.Padding = new Padding(8);
@@ -98,13 +95,11 @@ namespace SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral
 
         private void BindGrid()
         {
-            // Data source schema
+            // Esquema SIN columna Nombre: se combinará en Cuenta (Código - Nombre)
             _dt.Columns.Add("Grupo", typeof(string));
-            _dt.Columns.Add("Cuenta", typeof(string));
-            _dt.Columns.Add("Nombre", typeof(string));
+            _dt.Columns.Add("Cuenta", typeof(string)); // contendrá "Codigo - Nombre" o solo "Codigo"
             _dt.Columns.Add("Saldo", typeof(decimal));
 
-            // Explicit columns in grid
             _dgv.AutoGenerateColumns = false;
             _dgv.Columns.Clear();
 
@@ -116,22 +111,16 @@ namespace SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral
                 Width = 110,
                 ReadOnly = true
             });
+
             _dgv.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "Cuenta",
                 HeaderText = "Cuenta",
                 DataPropertyName = "Cuenta",
-                Width = 110,
-                ReadOnly = true
+                ReadOnly = true,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
             });
-            _dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Nombre",
-                HeaderText = "Nombre",
-                DataPropertyName = "Nombre",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                ReadOnly = true
-            });
+
             var colSaldo = new DataGridViewTextBoxColumn
             {
                 Name = "Saldo",
@@ -144,7 +133,6 @@ namespace SistemaContable01.Dashboard.EstadosFinancieros.BalanceGeneral
             colSaldo.DefaultCellStyle.Format = "N2";
             _dgv.Columns.Add(colSaldo);
 
-            // Bind after columns are defined
             _dgv.DataSource = _dt;
         }
 
@@ -175,8 +163,9 @@ SELECT
         WHEN '3' THEN 'PATRIMONIO'
         ELSE 'OTROS'
     END AS Grupo,
-    M.CuentaContable AS Cuenta,
-    ISNULL(P.Nombre,'') AS Nombre,
+    M.CuentaContable +
+        CASE WHEN ISNULL(LTRIM(RTRIM(P.Nombre)),'') = '' THEN '' 
+             ELSE ' - ' + LTRIM(RTRIM(P.Nombre)) END AS Cuenta,
     M.Saldo
 FROM Mov AS M
 LEFT JOIN dbo.PUC AS P ON P.Codigo = M.CuentaContable

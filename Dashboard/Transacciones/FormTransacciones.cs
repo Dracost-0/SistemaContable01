@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.Data.SqlClient;
 
 namespace SistemaContable01.Dashboard.Transacciones
 {
@@ -15,6 +15,7 @@ namespace SistemaContable01.Dashboard.Transacciones
         private readonly DataTable _dtLineas = new();
         private readonly AutoCompleteStringCollection _acCuentas = new();
         private readonly HashSet<string> _cuentasValidas = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _cuentasNombre = new(StringComparer.OrdinalIgnoreCase);
 
         private readonly AutoCompleteStringCollection _acTerceros = new();
         private readonly Dictionary<string, int> _tercerosNombreToId = new(StringComparer.OrdinalIgnoreCase);
@@ -82,147 +83,19 @@ namespace SistemaContable01.Dashboard.Transacciones
                 btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
             };
 
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Reposicionar al redimensionar
-            panelBottom.Resize += (_, __) =>
-            {
-                btnRegistrarTransaccion.Left = panelBottom.ClientSize.Width - btnRegistrarTransaccion.Width - 10;
-            };
-
-            // Ajustes de terceros a autocompletar
             cboTercero.DropDownStyle = ComboBoxStyle.DropDown;
             cboTercero.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             cboTercero.AutoCompleteSource = AutoCompleteSource.CustomSource;
 
-            // Id Documento editable si existe en diseñador
             if (cboIdDocumento != null)
             {
-                // Asegura que se pueda escribir manualmente
                 cboIdDocumento.DropDownStyle = ComboBoxStyle.DropDown;
                 cboIdDocumento.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
                 cboIdDocumento.AutoCompleteSource = AutoCompleteSource.ListItems;
-
-                // Corrige el Name para evitar conflicto con cboTercero del diseñador
                 cboIdDocumento.Name = "cboIdDocumento";
 
-                // Etiqueta
                 lblIdDocumento.Text = "Id Documento:";
                 lblIdDocumento.AutoSize = true;
-
-                // Posiciona a la derecha de "Tercero"
                 lblIdDocumento.Left = cboTercero.Right + 20;
                 lblIdDocumento.Top = cboTercero.Top + 4;
 
@@ -232,8 +105,6 @@ namespace SistemaContable01.Dashboard.Transacciones
 
                 if (!panelHeader.Controls.Contains(lblIdDocumento)) panelHeader.Controls.Add(lblIdDocumento);
                 if (!panelHeader.Controls.Contains(cboIdDocumento)) panelHeader.Controls.Add(cboIdDocumento);
-                lblIdDocumento.BringToFront();
-                cboIdDocumento.BringToFront();
             }
         }
         #endregion        #endregion
@@ -291,22 +162,26 @@ ORDER BY Nombre;", conn);
         private void CargarCuentasPUC()
         {
             _acCuentas.Clear();
-            _cuentasValidas.Clear();
+            _cuentasValidas.Clear();    
+            _cuentasNombre.Clear();
             try
             {
                 using var conn = new SqlConnection(_connectionString);
-                using var cmd = new SqlCommand("SELECT Codigo FROM dbo.PUC ORDER BY Codigo;", conn);
+                using var cmd = new SqlCommand("SELECT Codigo, Nombre FROM dbo.PUC ORDER BY Codigo;", conn);
                 conn.Open();
                 using var rd = cmd.ExecuteReader();
                 while (rd.Read())
                 {
                     string codigo = rd.GetString(0).Trim();
-                    if (codigo.Length > 0)
-                    {
-                        _acCuentas.Add(codigo);
-                        _cuentasValidas.Add(codigo);
-                    }
-                }
+                    string nombre = rd.IsDBNull(1) ? "" : rd.GetString(1).Trim();
+                    if (codigo.Length == 0) continue;
+
+                    _cuentasValidas.Add(codigo);
+                    _cuentasNombre[codigo] = nombre;
+
+                    // SOLO una entrada
+                    _acCuentas.Add(string.IsNullOrWhiteSpace(nombre) ? codigo : $"{codigo} - {nombre}");
+                }   
             }
             catch (Exception ex)
             {
@@ -352,7 +227,7 @@ ORDER BY Nombre;", conn);
         {
             _dtLineas.Columns.Add("CuentaContable", typeof(string));
             _dtLineas.Columns.Add("IdTercero", typeof(int));
-            _dtLineas.Columns.Add("DescripcionLinea", typeof(string)); // Per-line description
+            _dtLineas.Columns.Add("DescripcionLinea", typeof(string));
             _dtLineas.Columns.Add("Debito", typeof(decimal));
             _dtLineas.Columns.Add("Credito", typeof(decimal));
         }
@@ -367,7 +242,7 @@ ORDER BY Nombre;", conn);
                 Name = "colCuenta",
                 HeaderText = "Cuenta",
                 DataPropertyName = "CuentaContable",
-                Width = 110
+                Width = 240
             });
 
             var colTercero = new DataGridViewComboBoxColumn
@@ -415,7 +290,36 @@ ORDER BY Nombre;", conn);
             dgvLineas.CellBeginEdit += DgvLineas_CellBeginEdit;
             dgvLineas.CellValidating += dgvLineas_CellValidating;
             dgvLineas.CellEndEdit += dgvLineas_CellEndEdit;
+            dgvLineas.CellFormatting += DgvLineas_CellFormatting;
+            dgvLineas.CellParsing += DgvLineas_CellParsing;
             dgvLineas.DataError += (_, e) => e.ThrowException = false;
+        }
+
+        private void DgvLineas_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (dgvLineas.Columns[e.ColumnIndex].Name == "colCuenta")
+            {
+                var codigo = e.Value?.ToString();
+                if (!string.IsNullOrWhiteSpace(codigo) &&
+                    _cuentasNombre.TryGetValue(codigo, out var nombre) &&
+                    !string.IsNullOrWhiteSpace(nombre))
+                {
+                    e.Value = $"{codigo} - {nombre}";
+                    e.FormattingApplied = true;
+                }
+            }
+        }
+
+        private void DgvLineas_CellParsing(object? sender, DataGridViewCellParsingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (dgvLineas.Columns[e.ColumnIndex].Name == "colCuenta" &&
+                e.Value is string txt && txt.Contains('-'))
+            {
+                e.Value = txt.Split('-')[0].Trim();
+                e.ParsingApplied = true;
+            }
         }
 
         private void DgvLineas_DefaultValuesNeeded(object? sender, DataGridViewRowEventArgs e)
@@ -441,8 +345,9 @@ ORDER BY Nombre;", conn);
         private void DgvLineas_EditingControlShowing(object? sender, DataGridViewEditingControlShowingEventArgs e)
         {
             if (dgvLineas.CurrentCell == null) return;
-            var prop = dgvLineas.Columns[dgvLineas.CurrentCell.ColumnIndex].DataPropertyName;
-            if (prop == "CuentaContable" && e.Control is TextBox tb)
+            if (dgvLineas.Columns[dgvLineas.CurrentCell.ColumnIndex].Name != "colCuenta") return;
+
+            if (e.Control is TextBox tb)
             {
                 tb.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
                 tb.AutoCompleteSource = AutoCompleteSource.CustomSource;
@@ -493,11 +398,18 @@ ORDER BY Nombre;", conn);
             else if (prop == "CuentaContable")
             {
                 string cuenta = (e.FormattedValue?.ToString() ?? "").Trim();
+                int idx = cuenta.IndexOf('-');
+                if (idx > 0) cuenta = cuenta[..idx].Trim();
+
                 if (cuenta.Length == 0) return;
                 if (!_cuentasValidas.Contains(cuenta))
                 {
                     e.Cancel = true;
                     MessageBox.Show($"Cuenta '{cuenta}' no existe en el PUC.");
+                }
+                else
+                {
+                    dgvLineas.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = cuenta;
                 }
             }
         }
