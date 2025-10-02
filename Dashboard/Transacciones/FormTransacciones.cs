@@ -107,7 +107,7 @@ namespace SistemaContable01.Dashboard.Transacciones
                 if (!panelHeader.Controls.Contains(cboIdDocumento)) panelHeader.Controls.Add(cboIdDocumento);
             }
         }
-        #endregion        #endregion
+        #endregion
 
         #region Cargas de datos
         private void CargarListaTerceros()
@@ -162,7 +162,7 @@ ORDER BY Nombre;", conn);
         private void CargarCuentasPUC()
         {
             _acCuentas.Clear();
-            _cuentasValidas.Clear();    
+            _cuentasValidas.Clear();
             _cuentasNombre.Clear();
             try
             {
@@ -178,10 +178,8 @@ ORDER BY Nombre;", conn);
 
                     _cuentasValidas.Add(codigo);
                     _cuentasNombre[codigo] = nombre;
-
-                    // SOLO una entrada
                     _acCuentas.Add(string.IsNullOrWhiteSpace(nombre) ? codigo : $"{codigo} - {nombre}");
-                }   
+                }
             }
             catch (Exception ex)
             {
@@ -230,6 +228,7 @@ ORDER BY Nombre;", conn);
             _dtLineas.Columns.Add("DescripcionLinea", typeof(string));
             _dtLineas.Columns.Add("Debito", typeof(decimal));
             _dtLineas.Columns.Add("Credito", typeof(decimal));
+            // Eliminado IdComprobante
         }
 
         private void ConfigurarGrid()
@@ -328,6 +327,7 @@ ORDER BY Nombre;", conn);
                 e.Row.Cells["colIdTercero"].Value = idTer;
             e.Row.Cells["colDebito"].Value = 0m;
             e.Row.Cells["colCredito"].Value = 0m;
+            // Eliminado IdComprobante
         }
 
         private void DgvLineas_CellBeginEdit(object? sender, DataGridViewCellCancelEventArgs e)
@@ -515,7 +515,8 @@ INSERT INTO dbo.Transacciones
  (TipoDocContable, Fecha, IdTercero, NumeroComprobante,
   DescripcionTransaccion, NumeroDocumento, CuentaContable, Debito, Credito, DescripcionLinea)
 VALUES
- (@Tipo, @Fecha, @IdTer, @Numero, @Descripcion, @NumeroDocumento, @Cuenta, @Debito, @Credito, @DescripcionLinea);";
+ (@Tipo, @Fecha, @IdTer, @Numero,
+  @Descripcion, @NumeroDocumento, @Cuenta, @Debito, @Credito, @DescripcionLinea);";
 
                 using var cmd = new SqlCommand(sql, conn, tx);
                 cmd.Parameters.Add("@Tipo", SqlDbType.NVarChar, 10);
@@ -540,11 +541,9 @@ VALUES
                     cmd.Parameters["@Descripcion"].Value = descripcion;
                     cmd.Parameters["@NumeroDocumento"].Value =
                         string.IsNullOrWhiteSpace(idDocumento) ? (object)DBNull.Value : idDocumento;
-
                     cmd.Parameters["@Cuenta"].Value = r.Field<string?>("CuentaContable") ?? "";
                     cmd.Parameters["@Debito"].Value = r.Field<decimal>("Debito");
                     cmd.Parameters["@Credito"].Value = r.Field<decimal>("Credito");
-
                     string? descLinea = r.Field<string?>("DescripcionLinea")?.Trim();
                     cmd.Parameters["@DescripcionLinea"].Value =
                         string.IsNullOrWhiteSpace(descLinea) ? (object)DBNull.Value : descLinea;
@@ -553,7 +552,11 @@ VALUES
                 }
 
                 tx.Commit();
-                MessageBox.Show("Transacción guardada con éxito.");
+
+                // Mostrar el código formateado (si existe la columna calculada en la BD)
+                string codigo = $"{tipo}{numero:000000}";
+                MessageBox.Show($"Transacción guardada. Código: {codigo}");
+
                 _dtLineas.Rows.Clear();
                 if (cboIdDocumento != null) cboIdDocumento.Text = "";
                 RecalcularTotales();

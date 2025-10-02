@@ -234,7 +234,7 @@
             panelHeader.Controls.Add(txtNumero);
             panelHeader.Controls.Add(lblFecha);
             panelHeader.Controls.Add(dtpFecha);
-                    panelHeader.Controls.Add(lblTercero);
+            panelHeader.Controls.Add(lblTercero);
             panelHeader.Controls.Add(cboTercero);
             panelHeader.Controls.Add(lblDescripcion);
             panelHeader.Controls.Add(txtDescripcion);
