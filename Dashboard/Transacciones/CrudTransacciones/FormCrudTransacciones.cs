@@ -14,13 +14,15 @@ namespace SistemaContable01.Dashboard.Transacciones.CrudTransacciones
             @"Server=localhost\SQLEXPRESS;Database=SysCon01Db;Trusted_Connection=True;Encrypt=False;";
 
         private DataTable? _dtActual;
+        private DataTable? _dtTerceros;
         private bool _modoEdicion;
         private bool _cargando;
         private long? _terceroPendiente;
         private Task? _loadTercerosTask;
 
-        // Expresión reutilizable para armar el nombre del tercero (persona o empresa)
-        // Se prioriza Razón Social; si está vacía se arma con nombres y apellidos.
+        private readonly string[] _columnasEditables = { "CuentaContable", "DescripcionLinea", "Debito", "Credito" };
+
+        // Nombre de tercero compuesto (razón social preferida; si no, nombres/apellidos)
         private const string ExprNombreTercero = @"
 COALESCE(
     NULLIF(LTRIM(RTRIM(t3.RazonSocial)),''),
@@ -62,9 +64,11 @@ COALESCE(
             cboTercero.SelectedIndexChanged += (_, __) => { if (_modoEdicion && !_cargando) MarcarHeaderModificado(); };
             txtDescripcionTrans.TextChanged += (_, __) => { if (_modoEdicion && !_cargando) MarcarHeaderModificado(); };
 
-            dgvTransacciones.CellValueChanged += (_, __) =>
+            dgvTransacciones.CellValueChanged += DgvTransacciones_CellValueChanged;
+            dgvTransacciones.CurrentCellDirtyStateChanged += (_, __) =>
             {
-                if (_modoEdicion) RecalcularTotales();
+                if (_modoEdicion && dgvTransacciones.IsCurrentCellDirty)
+                    dgvTransacciones.CommitEdit(DataGridViewDataErrorContexts.Commit);
             };
             dgvTransacciones.DataError += (_, e) =>
             {
@@ -92,8 +96,7 @@ COALESCE(
                 using var cn = new SqlConnection(_connectionString);
                 await cn.OpenAsync();
 
-                // Se construye el “NombreTercero” usando la expresión (sin alias t3 aquí)
-                string sql = $@"
+                string sql = @"
 SELECT 
     IdTercero,
     COALESCE(
@@ -119,9 +122,13 @@ ORDER BY NombreTercero;";
                     dt.Columns.Add("Display", typeof(string),
                         "Convert(IdTercero, 'System.String') + ' - ' + NombreTercero");
 
+                _dtTerceros = dt;
+
                 cboTercero.DisplayMember = "Display";
                 cboTercero.ValueMember = "IdTercero";
                 cboTercero.DataSource = dt;
+
+                ConfigurarColumnaTerceroEnGrid();
 
                 if (_terceroPendiente.HasValue)
                 {
@@ -133,6 +140,32 @@ ORDER BY NombreTercero;";
             catch (Exception ex)
             {
                 MessageBox.Show("No se pudieron cargar terceros: " + ex.Message);
+            }
+        }
+
+        private void ConfigurarColumnaTerceroEnGrid()
+        {
+            if (dgvTransacciones.Columns["ColTercero"] is not DataGridViewComboBoxColumn col)
+            {
+                col = new DataGridViewComboBoxColumn
+                {
+                    Name = "ColTercero",
+                    HeaderText = "Tercero",
+                    DataPropertyName = "IdTercero",
+                    Width = 220,
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton,
+                    FlatStyle = FlatStyle.Standard
+                };
+                int insertIndex = dgvTransacciones.Columns.Contains("CuentaContable")
+                    ? dgvTransacciones.Columns["CuentaContable"].Index + 1
+                    : dgvTransacciones.Columns.Count;
+                dgvTransacciones.Columns.Insert(insertIndex, col);
+            }
+            if (_dtTerceros != null)
+            {
+                col.DataSource = _dtTerceros;
+                col.DisplayMember = "Display";
+                col.ValueMember = "IdTercero";
             }
         }
 
@@ -163,8 +196,7 @@ ORDER BY NombreTercero;";
             Col("IdTransacción", "IdTransaccion", 90, visible: false);
             Col("Tipo", "TipoDocContable", 60, visible: false);
             Col("Fecha", "Fecha", 90, "yyyy-MM-dd", visible: false);
-            Col("IdTercero", "IdTercero", 70, visible: false);
-            Col("Tercero", "NombreTercero", 160, visible: false);
+            Col("Nombre Tercero", "NombreTercero", 180, null, readOnly: true, visible: false); // oculta auxiliar
             Col("Num. Comprobante", "NumeroComprobante", 120, visible: false);
             Col("Cuenta", "CuentaContable", 110, null, readOnly: false);
             Col("Descripción Línea", "DescripcionLinea", 260, null, readOnly: false);
@@ -173,6 +205,9 @@ ORDER BY NombreTercero;";
             Col("Asiento", "IdAsiento", 80);
             Col("Num. Documento", "NumeroDocumento", 120, visible: false);
             Col("Desc. Transacción", "DescripcionTransaccion", 200, visible: false);
+
+            ConfigurarColumnaTerceroEnGrid();
+            AplicarReadOnlyPorModo();
         }
 
         private void FormatearTrasCarga()
@@ -222,28 +257,31 @@ ORDER BY NombreTercero;";
                 _cargando = true;
                 _dtActual = dt;
                 dgvTransacciones.DataSource = dt;
+                ConfigurarColumnaTerceroEnGrid();
                 FormatearTrasCarga();
 
                 var first = dt.Rows[0];
                 var idTrans = GetLong(first, "IdTransaccion");
-                var idTercero = GetLong(first, "IdTercero");
-                string nombreTercero = GetString(first, "NombreTercero");
                 dtpFecha.Value = first.Field<DateTime>("Fecha");
                 txtDescripcionTrans.Text = GetString(first, "DescripcionTransaccion");
 
+                long idTerceroPrimera = GetLong(first, "IdTercero");
+                string nombreTerceroPrimera = GetString(first, "NombreTercero");
                 if (cboTercero.DataSource != null)
                 {
-                    try { cboTercero.SelectedValue = idTercero; }
-                    catch { _terceroPendiente = idTercero; }
+                    try { cboTercero.SelectedValue = idTerceroPrimera; } catch { _terceroPendiente = idTerceroPrimera; }
                 }
                 else
                 {
-                    _terceroPendiente = idTercero;
+                    _terceroPendiente = idTerceroPrimera;
                 }
 
                 lblHeader.Text =
-                    $"Transacción: {idTrans}    Tipo: {tipo}    Número: {numero}    " +
-                    $"Tercero: {idTercero}" + (string.IsNullOrWhiteSpace(nombreTercero) ? "" : $" - {nombreTercero}");
+                    $"Transacción: {idTrans}    Tipo: {tipo}    Número: {numero}    Tercero (1a línea): {idTerceroPrimera}" +
+                    (string.IsNullOrWhiteSpace(nombreTerceroPrimera) ? "" : $" - {nombreTerceroPrimera}");
+
+                _modoEdicion = false;
+                AplicarReadOnlyPorModo();
 
                 RecalcularTotales();
             }
@@ -291,6 +329,23 @@ ORDER BY t.IdAsiento;";
             await cn.OpenAsync();
             await using var rd = await cmd.ExecuteReaderAsync();
             dt.Load(rd);
+
+            // Permitimos actualizar visualmente el NombreTercero (no crítico si falla)
+            if (dt.Columns.Contains("NombreTercero"))
+            {
+                if (dt.Columns["NombreTercero"] is DataColumn colNombreTercero)
+                {
+                    try
+                    {
+                        colNombreTercero.ReadOnly = false;
+                    }
+                    catch
+                    {
+                        // Ignorar si el proveedor no permite cambiarlo
+                    }
+                }
+            }
+
             return dt;
         }
 
@@ -301,22 +356,33 @@ ORDER BY t.IdAsiento;";
                 MessageBox.Show("Busca primero.");
                 return;
             }
+
             _modoEdicion = habilitar;
-            dgvTransacciones.ReadOnly = !habilitar;
-
-            string[] noEdit =
-            {
-                "Linea","IdTransaccion","TipoDocContable","Fecha","IdTercero",
-                "NumeroComprobante","IdAsiento","NumeroDocumento","DescripcionTransaccion","NombreTercero"
-            };
-            foreach (DataGridViewColumn c in dgvTransacciones.Columns)
-                c.ReadOnly = !habilitar || noEdit.Contains(c.DataPropertyName);
-
-            dtpFecha.Enabled = habilitar;
-            cboTercero.Enabled = habilitar;
-            txtDescripcionTrans.ReadOnly = !habilitar;
+            AplicarReadOnlyPorModo();
+            cboTercero.Enabled = !_modoEdicion; // para no confundir (no aplica a todas las líneas)
+            dtpFecha.Enabled = _modoEdicion;
+            txtDescripcionTrans.ReadOnly = !_modoEdicion;
 
             ActualizarEstadoBotones();
+        }
+
+        private void AplicarReadOnlyPorModo()
+        {
+            dgvTransacciones.ReadOnly = false;
+            foreach (DataGridViewColumn c in dgvTransacciones.Columns)
+            {
+                if (!_modoEdicion)
+                {
+                    c.ReadOnly = true;
+                    continue;
+                }
+
+                if (c.Name == "ColTercero" ||
+                    _columnasEditables.Contains(c.DataPropertyName ?? string.Empty))
+                    c.ReadOnly = false;
+                else
+                    c.ReadOnly = true;
+            }
         }
 
         private void CancelarEdicion()
@@ -331,10 +397,10 @@ ORDER BY t.IdAsiento;";
             var first = _dtActual.Rows[0];
             _cargando = true;
             dtpFecha.Value = first.Field<DateTime>("Fecha");
-            long idTercero = GetLong(first, "IdTercero");
+            long idTerceroPrimera = GetLong(first, "IdTercero");
             if (cboTercero.DataSource != null)
             {
-                try { cboTercero.SelectedValue = idTercero; } catch { }
+                try { cboTercero.SelectedValue = idTerceroPrimera; } catch { }
             }
             txtDescripcionTrans.Text = GetString(first, "DescripcionTransaccion");
             _cargando = false;
@@ -355,6 +421,7 @@ ORDER BY t.IdAsiento;";
                 decimal cre = GetDecimal(r, "Credito");
                 if (deb != 0 && cre != 0) { mensaje = $"Línea {r["Linea"]}: Débito y Crédito."; return false; }
                 if (deb < 0 || cre < 0) { mensaje = $"Línea {r["Linea"]}: valores negativos."; return false; }
+                if (GetLong(r, "IdTercero") == 0) { mensaje = $"Línea {r["Linea"]}: falta Tercero."; return false; }
             }
             var totalD = _dtActual.AsEnumerable().Where(r => r.RowState != DataRowState.Deleted)
                 .Sum(r => GetDecimal(r, "Debito"));
@@ -371,17 +438,13 @@ ORDER BY t.IdAsiento;";
         private void PropagarHeaderATabla()
         {
             if (_dtActual == null) return;
-            if (cboTercero.SelectedValue == null) return;
 
-            long idTercero = Convert.ToInt64(cboTercero.SelectedValue);
             DateTime fecha = dtpFecha.Value.Date;
             string desc = txtDescripcionTrans.Text.Trim();
-            string displayTercero = cboTercero.Text; // “Id - Nombre”
 
             foreach (DataRow r in _dtActual.Rows)
             {
                 if (r.RowState == DataRowState.Deleted) continue;
-                r["IdTercero"] = idTercero;
                 r["Fecha"] = fecha;
                 r["DescripcionTransaccion"] = desc;
             }
@@ -391,15 +454,28 @@ ORDER BY t.IdAsiento;";
                 long transId = GetLong(_dtActual.Rows[0], "IdTransaccion");
                 string tipo = GetString(_dtActual.Rows[0], "TipoDocContable");
                 string num = GetString(_dtActual.Rows[0], "NumeroComprobante");
-                lblHeader.Text = $"Transacción: {transId}    Tipo: {tipo}    Número: {num}    Tercero: {displayTercero}";
+                long idTerceroPrimera = GetLong(_dtActual.Rows[0], "IdTercero");
+                string nombrePrimero = GetString(_dtActual.Rows[0], "NombreTercero");
+                lblHeader.Text = $"Transacción: {transId}    Tipo: {tipo}    Número: {num}    Tercero (1a línea): {idTerceroPrimera}" +
+                                 (string.IsNullOrWhiteSpace(nombrePrimero) ? "" : $" - {nombrePrimero}");
             }
         }
 
+        // Detecta si cambió sólo el concepto (descripcion transacción) respecto al original
+        private bool HeaderConceptoModificado()
+        {
+            if (_dtActual is not { Rows.Count: > 0 }) return false;
+            var r0 = _dtActual.Rows[0];
+            string nuevo = txtDescripcionTrans.Text.Trim();
+            string original = (r0["DescripcionTransaccion", DataRowVersion.Original]?.ToString() ?? "").Trim();
+            return !string.Equals(nuevo, original, StringComparison.Ordinal);
+        }
+
+        // Reemplaza SOLO el método GuardarCambiosAsync por esta versión (forzamos siempre el UPDATE global del concepto).
         private async Task GuardarCambiosAsync()
         {
             if (!_modoEdicion || _dtActual == null)
             {
-
                 MessageBox.Show("Nada que guardar.");
                 return;
             }
@@ -409,9 +485,51 @@ ORDER BY t.IdAsiento;";
                 return;
             }
 
+            // Concepto original antes de propagar (para detectar cambio real)
+            string conceptoOriginal = "";
+            if (_dtActual.Rows.Count > 0)
+            {
+                var r0 = _dtActual.Rows[0];
+                conceptoOriginal = (r0["DescripcionTransaccion", DataRowVersion.Original]?.ToString() ?? "").Trim();
+            }
+
+            // Propaga fecha + concepto del header a cada fila
             PropagarHeaderATabla();
 
+            string nuevoConcepto = txtDescripcionTrans.Text.Trim();
+            bool conceptoModificado = !string.Equals(conceptoOriginal, nuevoConcepto, StringComparison.Ordinal);
+            long idTransaccion = _dtActual.Rows.Count > 0 ? GetLong(_dtActual.Rows[0], "IdTransaccion") : 0;
+
             var changes = _dtActual.GetChanges();
+
+            // Si solo cambió concepto (ninguna fila Modified)
+            if ((changes == null || changes.Rows.Count == 0) && conceptoModificado)
+            {
+                try
+                {
+                    using var cnSolo = new SqlConnection(_connectionString);
+                    await cnSolo.OpenAsync();
+                    const string sqlConceptoOnly = @"UPDATE dbo.Transacciones
+SET DescripcionTransaccion=@Desc WHERE IdTransaccion=@Id;";
+                    using var cmdC = new SqlCommand(sqlConceptoOnly, cnSolo);
+                    cmdC.Parameters.Add("@Desc", SqlDbType.VarChar, 500).Value = nuevoConcepto;
+                    cmdC.Parameters.Add("@Id", SqlDbType.BigInt).Value = idTransaccion;
+                    int aff = await cmdC.ExecuteNonQueryAsync();
+
+                    foreach (DataRow r in _dtActual.Rows)
+                        r["DescripcionTransaccion"] = nuevoConcepto;
+                    _dtActual.AcceptChanges();
+                    HabilitarEdicion(false);
+                    MessageBox.Show($"Cambios guardados (concepto) Filas afectadas: {aff}");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error guardando concepto: " + ex.Message);
+                    return;
+                }
+            }
+
             if (changes == null || changes.Rows.Count == 0)
             {
                 MessageBox.Show("Sin modificaciones.");
@@ -425,7 +543,7 @@ ORDER BY t.IdAsiento;";
                 await cn.OpenAsync();
                 using var tx = cn.BeginTransaction();
 
-                const string sqlUpdate = @"
+                const string sqlUpdateFila = @"
 UPDATE dbo.Transacciones
 SET CuentaContable=@CuentaContable,
     DescripcionLinea=@DescripcionLinea,
@@ -440,21 +558,36 @@ WHERE IdTransaccion=@IdTransaccion AND IdAsiento=@IdAsiento;";
                 {
                     if (r.RowState != DataRowState.Modified) continue;
 
-                    using var cmd = new SqlCommand(sqlUpdate, cn, tx);
+                    using var cmd = new SqlCommand(sqlUpdateFila, cn, tx);
                     cmd.Parameters.Add("@CuentaContable", SqlDbType.VarChar, 50).Value = GetString(r, "CuentaContable");
                     cmd.Parameters.Add("@DescripcionLinea", SqlDbType.VarChar, 500).Value = GetString(r, "DescripcionLinea");
                     cmd.Parameters.Add("@Debito", SqlDbType.Decimal).Value = GetDecimal(r, "Debito");
                     cmd.Parameters.Add("@Credito", SqlDbType.Decimal).Value = GetDecimal(r, "Credito");
                     cmd.Parameters.Add("@Fecha", SqlDbType.Date).Value = r.Field<DateTime>("Fecha");
                     cmd.Parameters.Add("@IdTercero", SqlDbType.BigInt).Value = GetLong(r, "IdTercero");
-                    cmd.Parameters.Add("@DescripcionTransaccion", SqlDbType.VarChar, 500)
-                        .Value = GetString(r, "DescripcionTransaccion");
+                    cmd.Parameters.Add("@DescripcionTransaccion", SqlDbType.VarChar, 500).Value = GetString(r, "DescripcionTransaccion");
                     cmd.Parameters.Add("@IdTransaccion", SqlDbType.BigInt).Value = GetLong(r, "IdTransaccion");
                     cmd.Parameters.Add("@IdAsiento", SqlDbType.UniqueIdentifier).Value = r.Field<Guid>("IdAsiento");
                     await cmd.ExecuteNonQueryAsync();
+
+                    SincronizarNombreTercero(r);
+                }
+
+                // FORZAR SIEMPRE el concepto (aunque ya se haya enviado por fila) para garantizar persistencia
+                const string sqlConceptoGlobal = @"UPDATE dbo.Transacciones
+SET DescripcionTransaccion=@Desc WHERE IdTransaccion=@Id;";
+                using (var cmdConcepto = new SqlCommand(sqlConceptoGlobal, cn, tx))
+                {
+                    cmdConcepto.Parameters.Add("@Desc", SqlDbType.VarChar, 500).Value = nuevoConcepto;
+                    cmdConcepto.Parameters.Add("@Id", SqlDbType.BigInt).Value = idTransaccion;
+                    await cmdConcepto.ExecuteNonQueryAsync();
                 }
 
                 tx.Commit();
+
+                foreach (DataRow r in _dtActual.Rows)
+                    r["DescripcionTransaccion"] = nuevoConcepto;
+
                 _dtActual.AcceptChanges();
                 HabilitarEdicion(false);
                 RecalcularTotales();
@@ -463,6 +596,21 @@ WHERE IdTransaccion=@IdTransaccion AND IdAsiento=@IdAsiento;";
             catch (Exception ex)
             {
                 MessageBox.Show("Error guardando: " + ex.Message);
+            }
+        }
+
+        private void SincronizarNombreTercero(DataRow r)
+        {
+            if (_dtTerceros is null) return;
+            if (r.Table?.Columns.Contains("NombreTercero") != true) return;
+
+            long id = GetLong(r, "IdTercero");
+            var found = _dtTerceros.Select($"IdTercero = {id}");
+            if (found.Length == 0) return;
+
+            if (r.Table.Columns["NombreTercero"] is DataColumn col && !col.ReadOnly)
+            {
+                r["NombreTercero"] = found[0]["NombreTercero"];
             }
         }
 
@@ -574,6 +722,20 @@ WHERE TipoDocContable=@Tipo AND NumeroComprobante=@Numero;";
             if (_dtActual == null) return;
             if (!lblHeader.Text.EndsWith("*"))
                 lblHeader.Text += " *";
+        }
+
+        private void DgvTransacciones_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (!_modoEdicion || e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            var grid = dgvTransacciones;
+            var col = grid.Columns[e.ColumnIndex];
+            if (col.Name == "ColTercero" && grid.Rows[e.RowIndex].DataBoundItem is DataRowView drv)
+            {
+                try { SincronizarNombreTercero(drv.Row); } catch { }
+                MarcarHeaderModificado();
+            }
+            if (col.DataPropertyName is "Debito" or "Credito")
+                RecalcularTotales();
         }
     }
 }
