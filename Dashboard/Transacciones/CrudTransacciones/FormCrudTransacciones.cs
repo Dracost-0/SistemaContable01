@@ -399,6 +399,7 @@ ORDER BY t.IdAsiento;";
         {
             if (!_modoEdicion || _dtActual == null)
             {
+
                 MessageBox.Show("Nada que guardar.");
                 return;
             }

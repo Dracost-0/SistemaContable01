@@ -26,7 +26,7 @@ namespace SistemaContable01.Dashboard
             treeView1.ExpandAll();
         }
 
-        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (e.Node == null) return;
 

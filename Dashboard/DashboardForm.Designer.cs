@@ -95,7 +95,7 @@
             treeView1.Nodes.AddRange(new TreeNode[] { treeNode3, treeNode6, treeNode9, treeNode11, treeNode13 });
             treeView1.Size = new Size(253, 426);
             treeView1.TabIndex = 2;
-            treeView1.AfterSelect += treeView1_AfterSelect;
+            treeView1.AfterSelect += TreeView1_AfterSelect;
             // 
             // DashboardForm
             // 

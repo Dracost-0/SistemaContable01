@@ -3,6 +3,7 @@ using System.Data;
 using System.Windows.Forms;
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
+using SistemaContable01.conexion;
 
 namespace SistemaContable01.Dashboard.Terceros
 {
@@ -16,10 +17,10 @@ namespace SistemaContable01.Dashboard.Terceros
         private void BtnGuardar_Click(object sender, EventArgs e)
         {
             // Cadena de conexión (ajusta si cambias instancia/BD)
-            string connectionString = @"Server=localhost\SQLEXPRESS;Database=SysCon01Db;Trusted_Connection=True;Encrypt=False;";
+            DatabaseConnection db = new();
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
+            using SqlConnection conn = db.GetConnection();
+            
                 try
                 {
                     conn.Open();
@@ -62,7 +63,7 @@ namespace SistemaContable01.Dashboard.Terceros
                 {
                     MessageBox.Show("Error al guardar: " + ex.Message);
                 }
-            }
+            
         }
     }
 }

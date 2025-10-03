@@ -1,16 +1,9 @@
 ﻿namespace SistemaContable01
 {
-    partial class loginForm
+    partial class LoginForm   // <-- CAMBIADO A PascalCase
     {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -24,24 +17,24 @@
 
         private void InitializeComponent()
         {
-            btnConexion = new Button();
+            BtnConexion = new Button();
             Usuario = new Label();
             Contraseña = new Label();
-            txtUsername = new TextBox();
-            txtPassword = new TextBox();
-            btnLogin = new Button();
+            TxtUsername = new TextBox();
+            TxtPassword = new TextBox();
+            BtnLogin = new Button();
             SuspendLayout();
             // 
-            // btnConexion
+            // BtnConexion
             // 
-            btnConexion.Location = new Point(12, 11);
-            btnConexion.Margin = new Padding(3, 2, 3, 2);
-            btnConexion.Name = "btnConexion";
-            btnConexion.Size = new Size(105, 30);
-            btnConexion.TabIndex = 0;
-            btnConexion.Text = "Conexion Status";
-            btnConexion.UseVisualStyleBackColor = true;
-            btnConexion.Click += btnConexion_Click;
+            BtnConexion.Location = new Point(12, 11);
+            BtnConexion.Margin = new Padding(3, 2, 3, 2);
+            BtnConexion.Name = "BtnConexion";
+            BtnConexion.Size = new Size(105, 30);
+            BtnConexion.TabIndex = 0;
+            BtnConexion.Text = "Conexion Status";
+            BtnConexion.UseVisualStyleBackColor = true;
+            BtnConexion.Click += BtnConexion_Click;
             // 
             // Usuario
             // 
@@ -62,59 +55,58 @@
             Contraseña.TabIndex = 2;
             Contraseña.Text = "Password";
             // 
-            // txtUsername
+            // TxtUsername
             // 
-            txtUsername.Location = new Point(210, 84);
-            txtUsername.Name = "txtUsername";
-            txtUsername.Size = new Size(100, 23);
-            txtUsername.TabIndex = 3;
-            txtUsername.Text = "Usuario";
+            TxtUsername.Location = new Point(210, 84);
+            TxtUsername.Name = "TxtUsername";
+            TxtUsername.Size = new Size(100, 23);
+            TxtUsername.TabIndex = 3;
+            TxtUsername.Text = "Usuario";
             // 
-            // txtPassword
+            // TxtPassword
             // 
-            txtPassword.Location = new Point(210, 152);
-            txtPassword.Name = "txtPassword";
-            txtPassword.Size = new Size(100, 23);
-            txtPassword.TabIndex = 4;
-            txtPassword.Text = "txtPassword";
-            txtPassword.UseSystemPasswordChar = true;
+            TxtPassword.Location = new Point(210, 152);
+            TxtPassword.Name = "TxtPassword";
+            TxtPassword.Size = new Size(100, 23);
+            TxtPassword.TabIndex = 4;
+            TxtPassword.Text = "txtPassword";
+            TxtPassword.UseSystemPasswordChar = true;
             // 
-            // btnLogin
+            // BtnLogin
             // 
-            btnLogin.Location = new Point(205, 209);
-            btnLogin.Name = "btnLogin";
-            btnLogin.Size = new Size(105, 29);
-            btnLogin.TabIndex = 5;
-            btnLogin.Text = "Iniciar Sesión";
-            btnLogin.UseVisualStyleBackColor = true;
-            btnLogin.Click += btnLogin_Click;
+            BtnLogin.Location = new Point(205, 209);
+            BtnLogin.Name = "BtnLogin";
+            BtnLogin.Size = new Size(105, 29);
+            BtnLogin.TabIndex = 5;
+            BtnLogin.Text = "Iniciar Sesión";
+            BtnLogin.UseVisualStyleBackColor = true;
+            BtnLogin.Click += BtnLogin_Click;
             // 
-            // loginForm
+            // LoginForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(547, 316);
-            Controls.Add(btnLogin);
-            Controls.Add(txtPassword);
-            Controls.Add(txtUsername);
+            Controls.Add(BtnLogin);
+            Controls.Add(TxtPassword);
+            Controls.Add(TxtUsername);
             Controls.Add(Contraseña);
             Controls.Add(Usuario);
-            Controls.Add(btnConexion);
+            Controls.Add(BtnConexion);
             Margin = new Padding(3, 2, 3, 2);
-            Name = "loginForm";
+            Name = "LoginForm";
             Text = "Conexión BD";
             ResumeLayout(false);
             PerformLayout();
-
         }
 
         #endregion
 
-        private System.Windows.Forms.Button btnConexion;
+        private System.Windows.Forms.Button BtnConexion;
         private Label Usuario;
         private Label Contraseña;
-        private TextBox txtUsername;
-        private TextBox txtPassword;
-        private Button btnLogin;
+        private TextBox TxtUsername;
+        private TextBox TxtPassword;
+        private Button BtnLogin;
     }
 }

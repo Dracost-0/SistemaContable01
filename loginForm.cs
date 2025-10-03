@@ -2,32 +2,27 @@
 using Microsoft.Data.SqlClient;
 using System.Windows.Forms;
 using SistemaContable01.Dashboard;
-
+using SistemaContable01.conexion;
 
 namespace SistemaContable01
 {
-    public partial class loginForm : Form
+    public partial class LoginForm : Form   // <-- CAMBIADO A PascalCase
     {
-        public loginForm()
+        public LoginForm()
         {
             InitializeComponent();
         }
 
-        private void btnConexion_Click(object sender, EventArgs e)
+        private void BtnConexion_Click(object sender, EventArgs e)
         {
+            DatabaseConnection db = new();
 
-            string connectionString = "Server=localhost\\SQLEXPRESS;Database=SysCon01Db;Trusted_Connection=True;Encrypt=False;";
-
-
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using SqlConnection conn = db.GetConnection();
             {
                 try
                 {
                     conn.Open();
                     MessageBox.Show("✅ Conexión exitosa a SysCon01Db");
-
-
                 }
                 catch (Exception ex)
                 {
@@ -36,22 +31,20 @@ namespace SistemaContable01
             }
         }
 
-
-        private void btnLogin_Click(object sender, EventArgs e)
+        private void BtnLogin_Click(object sender, EventArgs e)
         {
-            // Aquí va tu código de login
-            string username = txtUsername.Text;
-            string password = txtPassword.Text;
+            string username = TxtUsername.Text;
+            string password = TxtPassword.Text;
 
-            string connectionString = @"Server=localhost\SQLEXPRESS;Database=SysCon01Db;Trusted_Connection=True;Encrypt=False;";
+            DatabaseConnection db = new();
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using SqlConnection conn = db.GetConnection();
             {
                 try
                 {
                     conn.Open();
                     string query = "SELECT COUNT(1) FROM user_login WHERE username=@username AND password=@password";
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    SqlCommand cmd = new(query, conn);
                     cmd.Parameters.AddWithValue("@username", username);
                     cmd.Parameters.AddWithValue("@password", password);
 
@@ -59,8 +52,7 @@ namespace SistemaContable01
                     if (count == 1)
                     {
                         MessageBox.Show("¡Bienvenido!");
-                        // Abrir formulario principal
-                        DashboardForm dashboard = new DashboardForm();
+                        DashboardForm dashboard = new();
                         dashboard.Show();
                         this.Hide();
                     }
